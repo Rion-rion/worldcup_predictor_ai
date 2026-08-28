@@ -6,7 +6,6 @@
 # ・③のシミュレーションを1試合につき1回だけ実行
 # ・Poisson予測 + ②RandomForest予測を表示
 
-import japanize_matplotlib  # noqa: F401
 import matplotlib.pyplot as plt
 import pandas as pd
 

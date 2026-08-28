@@ -4,5 +4,3 @@ matplotlib
 scikit-learn
 openpyxl
 kagglehub
-joblib
-japanize-matplotlib

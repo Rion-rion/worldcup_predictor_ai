@@ -11,10 +11,18 @@
 from collections import Counter
 import random
 
-import japanize_matplotlib  # noqa: F401
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+
+plt.rcParams["font.family"] = "sans-serif"
+plt.rcParams["font.sans-serif"] = [
+    "Yu Gothic",
+    "Meiryo",
+    "MS Gothic",
+    "DejaVu Sans",
+]
+plt.rcParams["axes.unicode_minus"] = False
 
 from data_prepare import (
     COUNTRY_JA,
