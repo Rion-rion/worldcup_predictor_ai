@@ -20,6 +20,7 @@ plt.rcParams["font.sans-serif"] = [
     "Yu Gothic",
     "Meiryo",
     "MS Gothic",
+    "Noto Sans CJK JP",
     "DejaVu Sans",
 ]
 plt.rcParams["axes.unicode_minus"] = False

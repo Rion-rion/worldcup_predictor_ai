@@ -35,14 +35,14 @@
 
 ## 主なライブラリ
 
+## 主なライブラリ
+
 - pandas
 - NumPy
 - matplotlib
 - scikit-learn
 - openpyxl
 - kagglehub
-- joblib
-- japanize-matplotlib
 
 ## 主なアルゴリズム・手法
 
