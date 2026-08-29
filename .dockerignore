@@ -1,0 +1,41 @@
+# Git
+.git/
+.gitignore
+
+# Python virtual environments
+.venv/
+venv/
+
+# Python cache / build artifacts
+__pycache__/
+*.py[cod]
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# IDE / editor
+.vscode/
+.idea/
+
+# Environment variables / secrets
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local / temporary files
+*.log
+logs/
+.refactor_backup/
+
+# Local Kaggle CSV cache
+data/*.csv
+
+# Legacy notebook is not needed in the Docker image
+worldcup_predictor_ai_clean_ipynb2.ipynb

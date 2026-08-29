@@ -29,3 +29,6 @@ data/*.xlsx
 
 # Refactor backup
 .refactor_backup/
+
+#world_cup_ai_4countries_japanese.xlsx
+!data/world_cup_ai_4countries_japanese.xlsx
