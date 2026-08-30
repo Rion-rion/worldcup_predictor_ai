@@ -2,6 +2,7 @@
 # ワールドカップ予想AI エントリーポイント
 
 import argparse
+import matplotlib.pyplot as plt
 
 from ai_model import train_model
 from data_prepare import prepare_data
@@ -13,7 +14,7 @@ from match_simulation import (
 
 
 def run_pipeline(
-    show_graphs=False,
+    show_graphs=True,
     simulations=10000,
 ):
     """
@@ -105,7 +106,7 @@ def run_pipeline(
 
     print()
     print("=" * 60)
-    print("🏆 全処理が正常に完了しました！")
+    print("全処理が正常に完了しました！")
     print("=" * 60)
 
     print(
@@ -117,6 +118,9 @@ def run_pipeline(
         f"シミュレーション回数: "
         f"{simulations:,}回"
     )
+
+    if show_graphs:
+        plt.show()
 
     # 今後テストやAPI化するときにも利用できるよう
     # 結果をまとめて返す
@@ -162,7 +166,7 @@ def main():
     args = parse_args()
 
     run_pipeline(
-        show_graphs=args.graphs,
+        show_graphs=True,
         simulations=args.simulations,
     )
 
