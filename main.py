@@ -2,6 +2,7 @@
 # ワールドカップ予想AI エントリーポイント
 
 import argparse
+
 import matplotlib.pyplot as plt
 
 from ai_model import train_model
@@ -25,6 +26,7 @@ def run_pipeline(
     2. AIモデル学習
     3. 試合ログ生成
     4. グループリーグシミュレーション
+    5. グラフをまとめて表示
     """
 
     if simulations <= 0:
@@ -37,17 +39,13 @@ def run_pipeline(
     print("⚽ World Cup Predictor AI")
     print("=" * 60)
     print()
-
-    # ==========================================
-    # ① データ準備
-    # ==========================================
+  
+    # ① データ準備   
 
     intl, players_scored = prepare_data()
 
-    # ==========================================
     # ② AIモデル学習
-    # ==========================================
-
+  
     (
         model_elo,
         _,
@@ -57,9 +55,9 @@ def run_pipeline(
         show_report=True,
     )
 
-    # ==========================================
+ 
     # ③ 試合ログ生成
-    # ==========================================
+  
 
     print()
     print("=" * 60)
@@ -77,9 +75,7 @@ def run_pipeline(
         live_result
     )
 
-    # ==========================================
-    # ④ グループリーグ
-    # ==========================================
+    # ④ グループリーグシミュレーション=
 
     print()
     print("=" * 60)
@@ -100,13 +96,11 @@ def run_pipeline(
         run_group_table=True,
     )
 
-    # ==========================================
     # 完了
-    # ==========================================
 
     print()
     print("=" * 60)
-    print("全処理が正常に完了しました！")
+    print("🏆 全処理が正常に完了しました！")
     print("=" * 60)
 
     print(
@@ -119,10 +113,14 @@ def run_pipeline(
         f"{simulations:,}回"
     )
 
+    # ⑤ グラフを最後にまとめて表示
+
     if show_graphs:
+        print()
+        print("📊 グラフを表示します...")
         plt.show()
 
-    # 今後テストやAPI化するときにも利用できるよう
+    # 今後テスト・API化するときにも利用できるよう
     # 結果をまとめて返す
     return {
         "model_accuracy": accuracy,
@@ -136,17 +134,7 @@ def run_pipeline(
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description=(
-            "World Cup Predictor AI"
-        )
-    )
-
-    parser.add_argument(
-        "--graphs",
-        action="store_true",
-        help=(
-            "Matplotlibのグラフを表示する"
-        ),
+        description="World Cup Predictor AI"
     )
 
     parser.add_argument(
@@ -159,6 +147,12 @@ def parse_args():
         ),
     )
 
+    parser.add_argument(
+        "--no-graphs",
+        action="store_true",
+        help="グラフを表示しない",
+    )
+
     return parser.parse_args()
 
 
@@ -166,7 +160,7 @@ def main():
     args = parse_args()
 
     run_pipeline(
-        show_graphs=True,
+        show_graphs=not args.no_graphs,
         simulations=args.simulations,
     )
 
