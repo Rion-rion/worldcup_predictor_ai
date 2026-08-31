@@ -1,61 +1,262 @@
 # ⚽ World Cup Predictor AI
 
-代表戦データ、Eloレーティング、選手データ、機械学習、
-モンテカルロシミュレーションを利用して、
-サッカー代表戦の勝敗・スコア分布・グループリーグ突破確率を予測する
-Pythonプロジェクトです。
+サッカー国際Aマッチの過去データ、Eloレーティング、選手データ、機械学習、Poisson分布、モンテカルロシミュレーションを組み合わせて、代表戦の勝敗確率やグループリーグ突破率を予測するPythonプロジェクトです。
 
-元々Google Colab上で実行していたコードをリファクタリングし、
-現在は **Visual Studio Code / GitHub / Docker** を利用して
-ローカル環境でも再現・実行できる構成にしています。
+Google Colab上で作成した予測AIをリファクタリングし、現在は **Visual Studio Code / Git / GitHub / Docker** を利用してローカル環境でも再現・実行できる構成にしています。
 
----
+## 🎯 プロジェクトの目的
 
-## 📌 主な機能
+サッカーの試合結果を単純な勝敗予測だけでなく、複数の観点から分析することを目的としています。
 
-- 国際Aマッチの過去データ取得・前処理
-- KaggleHubを利用した選手データ取得
-- 選手市場価値・出場時間・得点・アシストを利用した選手スコア算出
-- 国別チーム力の算出
-- Eloレーティングの計算
-- 直近5試合・10試合の特徴量作成
-- RandomForestClassifierによる勝敗予測
-- ポアソン分布を利用した得点シミュレーション
-- 10,000回のモンテカルロシミュレーション
-- スコア分布の算出
-- グループリーグ順位・突破確率の算出
-- 選手名を利用した試合ログ生成
-- Matplotlibによるグラフ表示
-
----
-
-## 🤖 予測に使用する主な要素
-
-試合予測では、主に以下の情報を利用します。
-
-- 過去の代表戦結果
+- 過去の代表戦成績
 - Eloレーティング
-- 直近の勝敗傾向
+- 直近5試合・10試合の成績
+- 選手能力
+- 市場価値
+- 得点・アシスト
+- 出場時間
+- Poisson分布による得点予測
+- RandomForestによる勝敗予測
+- モンテカルロシミュレーションによる大会予測
+
+現在は、日本・オランダ・スウェーデン・チュニジアの4カ国を対象にグループリーグをシミュレーションします。
+
+---
+
+## 🚀 主な機能
+
+### 1. データ取得・前処理
+
+国際Aマッチの過去データとKaggleの選手データを取得・整形します。
+
+主な処理：
+
+- 国際Aマッチデータの読み込み
+- KaggleHubによる選手データ取得
+- 欠損値処理
+- 選手データの結合
+- 選手スコア算出
+- 代表選手データの読み込み
+- 国別チーム力の算出
+
+---
+
+### 2. AIによる勝敗予測
+
+`RandomForestClassifier` を利用して、
+
+- ホーム勝利
+- 引き分け
+- アウェイ勝利
+
+の3クラス分類を行います。
+
+主な特徴量：
+
+- 直近5試合の勝率
+- 直近10試合の勝率
 - 平均得点
 - 平均失点
-- 選手市場価値
-- 出場時間
-- 得点
-- アシスト
-- チーム総合力
+- チーム間の成績差
+- Eloレーティング
+- Elo差
+- Eloによる期待勝率
+- 中立地フラグ
 
-これらの特徴量を組み合わせ、
-機械学習モデルと確率シミュレーションによって試合結果を予測します。
+データリークを避けるため、試合日時順に並べ、
+
+- 古い80%：学習データ
+- 新しい20%：テストデータ
+
+として評価しています。
+
+実行時には以下を表示します。
+
+- Accuracy
+- Precision
+- Recall
+- F1-score
+- Confusion Matrix
+
+---
+
+### 3. Poisson分布によるスコア予測
+
+選手データからチーム力を計算し、両チームの期待得点（xG）を算出します。
+
+その期待得点を利用してPoisson分布から得点を生成し、多数回の試合シミュレーションを行います。
+
+出力例：
+
+- 日本勝利確率
+- 引き分け確率
+- 相手勝利確率
+- 日本の期待得点
+- 相手の期待得点
+- 最頻スコア
+- スコア分布
+
+---
+
+### 4. グループリーグ全6試合予測
+
+対象グループ：
+
+- 🇯🇵 Japan
+- 🇳🇱 Netherlands
+- 🇸🇪 Sweden
+- 🇹🇳 Tunisia
+
+以下の全6試合を予測します。
+
+1. 日本 vs オランダ
+2. 日本 vs スウェーデン
+3. 日本 vs チュニジア
+4. オランダ vs スウェーデン
+5. オランダ vs チュニジア
+6. スウェーデン vs チュニジア
+
+各試合について、
+
+- Poisson勝敗確率
+- RandomForest勝敗確率
+- 期待得点
+- 最頻スコア
+
+をまとめて表示します。
+
+---
+
+### 5. 日本代表3試合の勝敗確率
+
+グループリーグ全6試合から日本代表の3試合を抽出し、
+
+- 日本勝利
+- 引き分け
+- 日本敗北
+
+の確率を比較します。
+
+グラフによって対戦相手ごとの勝敗確率を視覚化します。
+
+---
+
+### 6. グループリーグ突破率
+
+4カ国のグループリーグ全体を10,000回シミュレーションし、各国について以下を算出します。
+
+- 1位確率
+- 2位確率
+- グループ突破率
+- 平均勝ち点
+- 平均得失点差
+- 平均得点
+
+さらに日本代表について、
+
+- 1位通過率
+- 2位通過率
+- グループ突破率
+- 平均勝ち点
+
+を最終予測として表示します。
+
+---
+
+## 🔄 処理フロー
+
+```text
+データ取得・前処理
+        ↓
+Eloレーティング計算
+        ↓
+直近5試合・10試合の特徴量作成
+        ↓
+RandomForest学習・評価
+        ↓
+日本 vs オランダ 試合ログ生成
+        ↓
+グループリーグ全6試合予測
+        ↓
+日本代表3試合の勝敗確率
+        ↓
+モンテカルロシミュレーション
+        ↓
+グループリーグ突破率算出
+        ↓
+グラフ表示
+```
+
+---
+
+## 📊 主な出力
+
+### AIモデル評価
+
+```text
+AIモデル精度
+分類レポート
+混同行列
+```
+
+### グループリーグ全6試合
+
+```text
+日本 vs オランダ
+日本 vs スウェーデン
+日本 vs チュニジア
+オランダ vs スウェーデン
+オランダ vs チュニジア
+スウェーデン vs チュニジア
+```
+
+### 日本代表
+
+```text
+オランダ戦      勝利 / 引き分け / 敗北
+スウェーデン戦  勝利 / 引き分け / 敗北
+チュニジア戦    勝利 / 引き分け / 敗北
+```
+
+### グループリーグ
+
+```text
+1位確率
+2位確率
+突破率
+平均勝ち点
+平均得失点差
+平均得点
+```
 
 ---
 
 ## 🛠 使用技術
 
-### 言語
+### Language
 
-- Python
+- Python 3.13
 
-### 開発環境
+### Data Analysis
+
+- pandas
+- NumPy
+- openpyxl
+
+### Machine Learning
+
+- scikit-learn
+- RandomForestClassifier
+
+### Visualization
+
+- matplotlib
+
+### Data Source / Acquisition
+
+- KaggleHub
+
+### Development / Infrastructure
 
 - Visual Studio Code
 - Git
@@ -63,21 +264,25 @@ Pythonプロジェクトです。
 - Docker
 - WSL2
 
-### 主なライブラリ
+---
 
-- pandas
-- NumPy
-- matplotlib
-- scikit-learn
-- openpyxl
-- kagglehub
+## 🧠 使用アルゴリズム
 
-### 主なアルゴリズム・手法
+### Random Forest
 
-- RandomForestClassifier
-- Eloレーティング
-- ポアソン分布
-- モンテカルロシミュレーション
+過去の代表戦データから作成した特徴量を利用して、試合結果を3クラス分類します。
+
+### Elo Rating
+
+代表チームの過去の試合結果から、チームの相対的な強さを数値化します。
+
+### Poisson Distribution
+
+期待得点をもとに各チームの得点を確率的に生成します。
+
+### Monte Carlo Simulation
+
+多数回の試合・大会シミュレーションを実施し、勝率やグループ突破率を算出します。
 
 ---
 
@@ -103,207 +308,348 @@ worldcup_predictor_ai/
 ├── README.md
 │
 └── worldcup_predictor_ai_clean_ipynb2.ipynb
-📄 各ファイルの役割
-data_prepare.py
+```
+
+---
+
+## 📄 各ファイルの役割
+
+### `data_prepare.py`
 
 データ取得・前処理を担当します。
 
 主な処理：
 
-国際Aマッチデータ取得
-Kaggle選手データ取得
-欠損値処理
-選手特徴量作成
-選手スコア算出
-4カ国代表Excel読み込み
-ai_model.py
+- 国際Aマッチデータ取得
+- Kaggle選手データ取得
+- データ結合
+- 欠損値処理
+- 選手特徴量作成
+- 選手スコア算出
+- 代表メンバー読み込み
 
-機械学習モデルの学習・予測を担当します。
+---
 
-主な処理：
+### `ai_model.py`
 
-Eloレーティング計算
-直近試合データから特徴量作成
-RandomForestClassifierの学習
-勝敗確率の予測
-モデル精度評価
-match_simulation.py
-
-1試合単位のシミュレーションを担当します。
+機械学習モデルを担当します。
 
 主な処理：
 
-チーム力算出
-期待得点（xG）算出
-ポアソン分布による得点生成
-10,000回シミュレーション
-勝率・引き分け率算出
-スコア分布表示
-試合ログ生成
-japan_group_simulation.py
+- Eloレーティング計算
+- 直近5試合・10試合特徴量作成
+- RandomForestClassifier学習
+- 時系列Train/Test分割
+- 勝敗確率予測
+- Accuracy算出
+- Classification Report
+- Confusion Matrix
 
-日本代表が所属するグループリーグ全体をシミュレーションします。
+---
 
-対象国：
+### `match_simulation.py`
 
-🇯🇵 Japan
-🇳🇱 Netherlands
-🇸🇪 Sweden
-🇹🇳 Tunisia
+1試合およびグループリーグのシミュレーションを担当します。
 
-主な出力：
+主な処理：
 
-1位確率
-2位以内突破確率
-平均勝ち点
-平均得失点差
-main.py
+- 代表メンバー抽出
+- チーム力算出
+- 期待得点算出
+- Poissonによる得点生成
+- スコア分布算出
+- 勝敗確率算出
+- 試合ログ生成
+- グループ順位計算
 
-各処理を順番に実行するエントリーポイントです。
+---
 
+### `japan_group_simulation.py`
+
+4カ国のグループリーグ予測を担当します。
+
+主な処理：
+
+- グループ全6試合予測
+- 全6試合結果の一覧表示
+- 日本代表3試合の抽出
+- 日本の勝敗確率グラフ
+- 4カ国の突破率計算
+- 日本の1位・2位・突破率表示
+
+---
+
+### `main.py`
+
+プロジェクト全体のエントリーポイントです。
+
+以下の処理を順番に実行します。
+
+```text
 データ準備
-    ↓
+↓
 AIモデル学習
-    ↓
-試合シミュレーション
-    ↓
+↓
+試合ログ生成
+↓
 グループリーグシミュレーション
-📊 使用データ
-国際Aマッチデータ
+↓
+結果表示
+↓
+グラフ表示
+```
 
-過去の代表戦結果を取得して利用します。
+---
+
+## 📊 使用データ
+
+### 国際Aマッチデータ
+
+過去の代表戦結果を使用します。
 
 主な項目：
 
-試合日
-ホームチーム
-アウェイチーム
-得点
-勝敗結果
-Kaggle選手データ
+- 試合日
+- ホームチーム
+- アウェイチーム
+- ホーム得点
+- アウェイ得点
+- 中立地
+- 勝敗結果
 
-KaggleHubの以下のデータセットを利用します。
+---
 
+### Kaggle選手データ
+
+KaggleHubを利用して以下のデータセットを取得します。
+
+```text
 davidcariboo/player-scores
+```
 
-主に使用するデータ：
+主に利用するデータ：
 
+```text
 players.csv
 appearances.csv
 player_valuations.csv
+```
 
-ローカルの data/ にCSVが存在しない場合は、
-KaggleHubから自動取得します。
+ローカルに必要なCSVが存在しない場合、KaggleHubを利用してデータを取得します。
 
-4カ国代表データ
+そのため、初回実行時などはインターネット接続が必要になる場合があります。
 
-日本・オランダ・スウェーデン・チュニジアの代表データには、
+---
+
+### 4カ国代表データ
+
 以下のExcelファイルを使用します。
 
+```text
 data/world_cup_ai_4countries_japanese.xlsx
+```
 
-このExcelファイルはリポジトリに含まれています。
+対象国：
 
-🚀 ローカル環境での実行
-1. リポジトリをclone
+- 日本
+- オランダ
+- スウェーデン
+- チュニジア
+
+---
+
+## 🚀 ローカル環境での実行
+
+### 1. Repositoryをclone
+
+```bash
 git clone https://github.com/Rion-rion/worldcup_predictor_ai.git
 cd worldcup_predictor_ai
-2. 仮想環境を作成
+```
+
+### 2. 仮想環境を作成
+
+```bash
 python -m venv .venv
-Windows PowerShell
+```
+
+### Windows PowerShell
+
+必要に応じて：
+
+```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+仮想環境を有効化：
+
+```powershell
 .\.venv\Scripts\Activate.ps1
-macOS / Linux
+```
+
+### macOS / Linux
+
+```bash
 source .venv/bin/activate
-3. ライブラリをインストール
-python -m pip install -r requirements.txt
-4. 実行
+```
+
+### 3. ライブラリをインストール
+
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 4. 実行
+
+```bash
 python main.py
+```
 
-正常に完了すると、各処理の最後に完了メッセージが表示されます。
+デフォルトでは10,000回のシミュレーションを実行し、最後にグラフを表示します。
 
-🏆 全処理が正常に完了しました！
-🐳 Dockerでの実行
+---
 
-Dockerを利用すると、
-ローカルのPython環境に依存せず同一環境で実行できます。
+## ⚙️ オプション
 
-Dockerイメージをビルド
+### シミュレーション回数を変更
+
+例：50,000回
+
+```bash
+python main.py --simulations 50000
+```
+
+### グラフを表示しない
+
+```bash
+python main.py --no-graphs
+```
+
+---
+
+## 🐳 Docker
+
+Dockerを利用することで、ローカルのPython環境に依存しない実行環境を構築できます。
+
+### Docker Image Build
+
+```bash
 docker build -t worldcup-predictor-ai .
-コンテナを実行
+```
+
+### Container Run
+
+```bash
 docker run --rm worldcup-predictor-ai
+```
 
-Docker Desktop / WSL2環境で動作確認済みです。
+Docker環境では `MPLBACKEND=Agg` を使用しているため、GUIによるMatplotlibウィンドウ表示は行いません。
 
-Dockerイメージでは、日本語表示に対応するため
-Noto Sans CJK フォントを導入しています。
+Docker Desktop / WSL2環境で動作確認しています。
 
-🐳 Docker関連ファイル
-Dockerfile
+---
 
-Python 3.13ベースの実行環境を構築します。
+## 📦 requirements.txt
 
-主な処理：
+主要ライブラリ：
 
-Python 3.13環境構築
-日本語フォント導入
-Pythonライブラリのインストール
-プロジェクトファイルのコピー
-main.py の実行
-.dockerignore
+```text
+pandas
+numpy
+matplotlib
+scikit-learn
+openpyxl
+kagglehub
+```
 
-Dockerイメージに不要な以下のファイルを除外します。
+---
 
-.git/
-.venv/
-__pycache__/
-VS Code設定
-キャッシュファイル
-一時ファイル
-ローカルKaggle CSV
-旧Colab Notebook
-🔄 Colab版からの主な変更
+## 🔄 Google Colab版からの変更
 
-Google Colab版から以下の変更を行いました。
+元々Google Colab上で作成していたコードを、ローカル開発向けにリファクタリングしました。
 
-Colab依存のパス処理をローカル環境向けに変更
-Pythonコードを機能ごとにファイル分割
-requirements.txt による依存関係管理
-Python 3.13とのライブラリ互換性問題を修正
-japanize-matplotlib 依存を削除
-Windows / Linux対応の日本語フォント設定を追加
-Git / GitHubによるバージョン管理
-.gitignore の追加
-.dockerignore の追加
-Dockerfileの追加
-Docker / WSL2環境での動作確認
-⚠️ 注意事項
+主な変更：
 
-このプロジェクトの予測結果は、
-過去データ・機械学習モデル・確率シミュレーションに基づくものです。
+- Colab依存パスの削除
+- Pythonコードを機能別に分割
+- VS Codeで実行可能な構成へ変更
+- `requirements.txt` による依存関係管理
+- Python 3.13対応
+- Git / GitHubによるバージョン管理
+- `.gitignore` の追加
+- Dockerfileの追加
+- `.dockerignore` の追加
+- Windows / Linux向け日本語フォント対応
+- Docker / WSL2環境での動作確認
+- グループリーグ全6試合予測
+- 日本代表3試合の勝敗確率表示
+- グループ突破率シミュレーション
+- CLIオプション追加
 
-実際の試合結果を保証するものではありません。
+---
 
-また、選手データや市場価値などは取得時点のデータに依存するため、
-最新の実際の代表メンバー・コンディションとは異なる場合があります。
+## ⚠️ 現在の制約
 
-🔮 今後の改善候補
-対象国を4カ国から48カ国へ拡張
-最新FIFAランキングの特徴量追加
-選手コンディション・怪我情報の反映
-フォーメーション・スタメン情報の反映
-モデル精度比較
-XGBoost / LightGBMなど別モデルとの比較
-GitHub Actionsによる自動テスト
-Webアプリ化
-Docker Compose対応
-API化
-📌 Status
-✅ Google Colabからローカル環境へ移行
-✅ VS Codeで実行確認
-✅ Python 3.13対応
-✅ GitHub管理
-✅ 日本語グラフ表示対応
-✅ Dockerfile作成
-✅ Dockerイメージのビルド確認
-✅ Dockerコンテナ上で正常動作確認
+このプロジェクトは予測・分析を目的とした個人開発プロジェクトです。
+
+予測結果は以下の情報に依存します。
+
+- 使用した過去試合データ
+- 選手データ取得時点
+- 市場価値
+- モデルの特徴量
+- シミュレーション条件
+
+そのため、実際の試合結果を保証するものではありません。
+
+また、現在のグループ順位判定では、勝ち点・得失点差・得点が同一の場合の最終順位決定を簡略化しています。
+
+---
+
+## 🔮 今後の改善
+
+- 4カ国から48カ国への拡張
+- FIFAランキング追加
+- 選手コンディション追加
+- 怪我情報の反映
+- スタメン・フォーメーション情報の反映
+- ホーム・アウェイ補正改善
+- RandomForest以外のモデル比較
+- XGBoost / LightGBMとの比較
+- ベースラインモデルとの精度比較
+- Balanced Accuracy / Macro F1などの評価追加
+- グラフのPNG自動保存
+- READMEへの予測結果画像掲載
+- Kaggleデータのローカルキャッシュ強化
+- GitHub Actionsによる自動テスト
+- Webアプリ化
+- REST API化
+- 2026年W杯48カ国対応
+
+---
+
+## 📌 Status
+
+- ✅ Google Colabからローカル環境へ移行
+- ✅ VS Codeで実行可能
+- ✅ Python 3.13対応
+- ✅ Git / GitHub管理
+- ✅ RandomForestによる勝敗予測
+- ✅ Eloレーティング実装
+- ✅ Poisson得点シミュレーション
+- ✅ モンテカルロシミュレーション
+- ✅ グループ全6試合予測
+- ✅ 日本代表3試合の勝敗確率表示
+- ✅ グループ突破率算出
+- ✅ Matplotlibグラフ表示
+- ✅ Dockerfile作成
+- ✅ Dockerコンテナ動作確認
+
+---
+
+## 👤 Author
+
+Rion-rion
+
+Python / Data Analysis / Machine Learning Portfolio Project
